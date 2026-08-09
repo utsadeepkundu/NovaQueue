@@ -1,0 +1,176 @@
+{% extends 'patient/base_patient.html' %}
+{% load static %}
+
+{% block title %}Request Token{% endblock %}
+{% block header_title %}Generate New Token{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>Request a Queue Token</h1>
+    <p>Describe your symptoms and our AI will assess your clinical priority.</p>
+</div>
+
+<div style="max-width:640px;margin:0 auto;">
+    <div class="card">
+
+        <!-- Hero header -->
+        <div style="background:linear-gradient(135deg,var(--primary) 0%,var(--primary-mid) 100%);padding:28px 32px;position:relative;overflow:hidden;">
+            <div style="position:absolute;right:-16px;top:-16px;font-size:110px;opacity:.06;color:#fff;"><i class="fas fa-robot"></i></div>
+            <div style="position:relative;z-index:1;">
+                <div style="display:flex;align-items:center;gap:12px;margin-bottom:6px;">
+                    <div style="width:42px;height:42px;background:rgba(255,255,255,.15);border-radius:12px;display:flex;align-items:center;justify-content:center;">
+                        <i class="fas fa-notes-medical" style="color:#fff;font-size:18px;"></i>
+                    </div>
+                    <h2 style="font-size:20px;font-weight:900;color:#fff;letter-spacing:-.3px;margin:0;">Symptom Analysis</h2>
+                </div>
+                <p style="color:rgba(255,255,255,.65);font-size:14px;margin:0;">Provide your details for AI-driven priority assessment.</p>
+            </div>
+        </div>
+
+        <!-- Form -->
+        <form method="POST" style="padding:32px;display:flex;flex-direction:column;gap:24px;" id="tokenForm">
+            {% csrf_token %}
+
+            <!-- AI Tips -->
+            <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:14px;padding:18px;display:flex;align-items:flex-start;gap:12px;">
+                <div style="width:34px;height:34px;background:var(--primary-light);border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                    <i class="fas fa-lightbulb" style="color:var(--primary);font-size:14px;"></i>
+                </div>
+                <div>
+                    <div style="font-size:13px;font-weight:800;color:var(--primary);margin-bottom:4px;">AI Triage Tips</div>
+                    <p style="font-size:13px;color:#065f46;margin:0;line-height:1.6;">
+                        Be specific about pain levels and location. You can also use the <strong>microphone</strong> to speak your symptoms instead of typing!
+                    </p>
+                </div>
+            </div>
+
+            <!-- Symptoms textarea -->
+            <div>
+                <label class="form-label" style="display:flex;align-items:center;justify-content:space-between;">
+                    <span>Describe Your Symptoms</span>
+                    <span id="voiceStatus" style="font-size:10px;color:var(--accent);font-weight:800;display:none;animation:blink 1s infinite;">
+                        <i class="fas fa-circle" style="font-size:7px;"></i> Listening...
+                    </span>
+                </label>
+
+                <div style="position:relative;">
+                    {{ form.symptoms }}
+                    <button type="button" id="startVoice"
+                        style="position:absolute;right:14px;bottom:14px;width:44px;height:44px;background:var(--primary-light);color:var(--primary);border-radius:50%;border:1.5px solid #a7f3d0;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:var(--transition);font-size:15px;"
+                        onmouseover="if(!this.classList.contains('recording')){this.style.background='var(--primary)';this.style.color='#fff';}"
+                        onmouseout="if(!this.classList.contains('recording')){this.style.background='var(--primary-light)';this.style.color='var(--primary)';}">
+                        <i class="fas fa-microphone" id="micIcon"></i>
+                    </button>
+                </div>
+
+                <!-- Example symptoms -->
+                <div style="margin-top:14px;background:var(--surface-2);border-radius:12px;padding:14px 16px;border:1px solid var(--border);">
+                    <div style="font-size:10px;font-weight:800;color:var(--text-xmuted);text-transform:uppercase;letter-spacing:1.2px;margin-bottom:10px;">Example descriptions</div>
+                    <div style="display:flex;flex-direction:column;gap:8px;">
+                        <div style="display:flex;align-items:flex-start;gap:8px;">
+                            <span style="background:#fee2e2;color:#dc2626;font-size:9px;font-weight:800;padding:2px 7px;border-radius:4px;text-transform:uppercase;flex-shrink:0;margin-top:1px;">Critical</span>
+                            <p style="font-size:12px;color:var(--text-muted);margin:0;line-height:1.5;">"My child is choking on a small toy and cannot breathe properly."</p>
+                        </div>
+                        <div style="display:flex;align-items:flex-start;gap:8px;">
+                            <span style="background:#fef3c7;color:#d97706;font-size:9px;font-weight:800;padding:2px 7px;border-radius:4px;text-transform:uppercase;flex-shrink:0;margin-top:1px;">Urgent</span>
+                            <p style="font-size:12px;color:var(--text-muted);margin:0;line-height:1.5;">"I have intense chest pain and my left arm is numb."</p>
+                        </div>
+                        <div style="display:flex;align-items:flex-start;gap:8px;">
+                            <span style="background:#d1fae5;color:#065f46;font-size:9px;font-weight:800;padding:2px 7px;border-radius:4px;text-transform:uppercase;flex-shrink:0;margin-top:1px;">Moderate</span>
+                            <p style="font-size:12px;color:var(--text-muted);margin:0;line-height:1.5;">"My grandfather fell and is unconscious, possible stroke."</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Actions -->
+            <div style="display:flex;gap:12px;padding-top:8px;border-top:1px solid var(--border);">
+                <a href="{% url 'patient_dashboard' %}" class="btn-outline" style="flex:1;justify-content:center;">
+                    <i class="fas fa-arrow-left"></i> Back
+                </a>
+                <button type="submit" class="btn-primary" style="flex:2;justify-content:center;">
+                    Process with AI <i class="fas fa-microchip"></i>
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<style>
+/* Override Django's textarea to match design */
+textarea[name="symptoms"] {
+    width: 100%;
+    min-height: 140px;
+    background: var(--surface-2);
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius);
+    padding: 14px 60px 14px 16px;
+    font-size: 14px;
+    font-family: 'Inter', sans-serif;
+    color: var(--text-main);
+    transition: var(--transition);
+    outline: none;
+    resize: vertical;
+    line-height: 1.6;
+}
+textarea[name="symptoms"]:focus {
+    border-color: var(--accent);
+    background: #fff;
+    box-shadow: 0 0 0 3px rgba(16,185,129,.12);
+}
+@keyframes blink {
+    0%,100% { opacity:1; }
+    50%      { opacity:.4; }
+}
+</style>
+
+<script>
+    // Voice-to-Triage Logic using Web Speech API
+    const startBtn   = document.getElementById('startVoice');
+    const symptomArea = document.querySelector('textarea[name="symptoms"]');
+    const micIcon    = document.getElementById('micIcon');
+    const statusText = document.getElementById('voiceStatus');
+
+    if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        const recognition = new SpeechRecognition();
+
+        recognition.continuous = false;
+        recognition.interimResults = false;
+        recognition.lang = 'en-IN';
+
+        recognition.onstart = () => {
+            micIcon.classList.replace('fa-microphone', 'fa-stop');
+            startBtn.style.background = '#ef4444';
+            startBtn.style.color = '#fff';
+            startBtn.style.borderColor = '#ef4444';
+            startBtn.classList.add('recording');
+            statusText.style.display = 'inline-flex';
+        };
+
+        recognition.onresult = (event) => {
+            const transcript = event.results[0][0].transcript;
+            symptomArea.value += (symptomArea.value ? ' ' : '') + transcript;
+        };
+
+        recognition.onerror = () => { resetMic(); };
+        recognition.onend   = () => { resetMic(); };
+
+        function resetMic() {
+            micIcon.classList.replace('fa-stop', 'fa-microphone');
+            startBtn.style.background   = 'var(--primary-light)';
+            startBtn.style.color        = 'var(--primary)';
+            startBtn.style.borderColor  = '#a7f3d0';
+            startBtn.classList.remove('recording');
+            statusText.style.display = 'none';
+        }
+
+        startBtn.addEventListener('click', () => {
+            try { recognition.start(); } catch(e) { recognition.stop(); }
+        });
+
+    } else {
+        startBtn.style.display = 'none';
+    }
+</script>
+{% endblock %}

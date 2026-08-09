@@ -1,0 +1,56 @@
+{% extends 'admin/base_admin.html' %}
+{% block admin_content %}
+<div class="max-w-xl mx-auto py-12">
+    <!-- Breadcrumbs -->
+    <nav class="flex mb-6 text-sm text-gray-500">
+        <a href="{% url 'admin_dashboard' %}" class="hover:text-blue-600 transition">Dashboard</a>
+        <span class="mx-2">/</span>
+        <a href="{% url 'admin_history' %}" class="hover:text-blue-600 transition">Global History</a>
+        <span class="mx-2">/</span>
+        <span class="text-gray-800 font-bold">Delete</span>
+    </nav>
+
+    <div class="bg-white rounded-3xl shadow-2xl border border-red-50 overflow-hidden">
+        <div class="bg-red-600 p-10 text-white text-center relative overflow-hidden">
+            <!-- Icon Background Decoration -->
+            <div class="absolute -top-4 -right-4 opacity-10 text-9xl">
+                <i class="fas fa-trash-alt"></i>
+            </div>
+            
+            <div class="w-20 h-20 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-6">
+                <i class="fas fa-exclamation-circle text-3xl"></i>
+            </div>
+            <h2 class="text-3xl font-black">Permanent Removal</h2>
+            <p class="text-red-100 mt-2 font-medium">This action cannot be undone.</p>
+        </div>
+
+        <div class="p-10 text-center">
+            <p class="text-gray-600 leading-relaxed mb-8">
+                You are about to delete the clinical history for token 
+                <span class="font-mono font-bold text-red-600 px-2 py-1 bg-red-50 rounded">{{ token.token_number }}</span>. 
+                This will remove all symptom data, urgency scores, and clinical notes for 
+                <span class="font-bold text-gray-900">{{ token.patient.get_full_name }}</span>.
+            </p>
+
+            <form method="POST" class="space-y-3">
+                {% csrf_token %}
+                <button type="submit" class="w-full bg-red-600 text-white py-4 rounded-2xl font-bold hover:bg-red-700 transition shadow-xl transform hover:-translate-y-0.5 flex items-center justify-center gap-3">
+                    <i class="fas fa-trash-alt"></i> Confirm Permanent Deletion
+                </button>
+                <a href="{% url 'admin_history' %}" class="block w-full py-4 text-gray-400 font-bold hover:text-gray-600 transition">
+                    Keep Record and Go Back
+                </a>
+            </form>
+        </div>
+    </div>
+    
+    <div class="mt-8 bg-amber-50 border border-amber-100 p-6 rounded-2xl">
+        <div class="flex gap-4">
+            <i class="fas fa-info-circle text-amber-500 mt-1"></i>
+            <p class="text-sm text-amber-800 leading-relaxed">
+                <span class="font-bold">Administrative Note:</span> Deleting this record will impact hospital throughput statistics and AI efficiency reporting. Only delete records that were created in error.
+            </p>
+        </div>
+    </div>
+</div>
+{% endblock %}

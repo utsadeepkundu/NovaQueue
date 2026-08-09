@@ -1,0 +1,5 @@
+django 
+djangorestframework 
+django-crispy-forms
+textblob 
+scikit-learn

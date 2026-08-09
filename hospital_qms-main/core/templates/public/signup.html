@@ -1,0 +1,212 @@
+{% extends 'base_public.html' %}
+{% block title %}Create Account{% endblock %}
+
+{% block extra_head %}
+<style>
+    .auth-page {
+        min-height: calc(100vh - 68px);
+        display: flex;
+        align-items: flex-start;
+        justify-content: center;
+        padding: 48px 24px 64px;
+        background: linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 50%, #d1fae5 100%);
+    }
+    .auth-card {
+        background: #fff;
+        border-radius: 24px;
+        box-shadow: 0 20px 60px rgba(6,78,59,.15);
+        border: 1px solid rgba(16,185,129,.15);
+        overflow: hidden;
+        width: 100%;
+        max-width: 680px;
+    }
+    .auth-card-header {
+        background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+        padding: 36px 36px 32px;
+        text-align: center;
+        position: relative;
+    }
+    .auth-card-header::after {
+        content: '';
+        position: absolute;
+        bottom: -1px; left: 0; right: 0;
+        height: 24px;
+        background: #fff;
+        border-radius: 24px 24px 0 0;
+    }
+    .auth-logo {
+        width: 56px; height: 56px;
+        background: rgba(255,255,255,.15);
+        border-radius: 16px;
+        display: flex; align-items: center; justify-content: center;
+        color: #fff; font-size: 24px;
+        margin: 0 auto 16px;
+        border: 2px solid rgba(255,255,255,.25);
+    }
+    .auth-card-header h2 {
+        font-size: 26px; font-weight: 800; color: #fff;
+        letter-spacing: -0.5px; margin-bottom: 6px;
+    }
+    .auth-card-header p { font-size: 14px; color: rgba(255,255,255,.7); }
+
+    .auth-body { padding: 32px 36px 36px; }
+
+    .section-divider {
+        display: flex; align-items: center; gap: 12px;
+        margin: 4px 0 24px;
+        font-size: 12px; font-weight: 700; letter-spacing: 1px;
+        text-transform: uppercase; color: var(--text-muted);
+    }
+    .section-divider::before, .section-divider::after {
+        content: ''; flex: 1; height: 1px; background: var(--border);
+    }
+    .section-divider i { color: var(--accent); }
+
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .form-grid.single { grid-template-columns: 1fr; }
+
+    .form-group { margin-bottom: 16px; display: flex; flex-direction: column; gap: 6px; }
+    .form-group label {
+        font-size: 12px; font-weight: 700; color: #374151;
+        text-transform: uppercase; letter-spacing: .5px;
+    }
+
+    .auth-body input[type="text"],
+    .auth-body input[type="email"],
+    .auth-body input[type="password"],
+    .auth-body input[type="tel"],
+    .auth-body input[type="file"],
+    .auth-body textarea,
+    .auth-body select {
+        width: 100%;
+        padding: 11px 14px;
+        border: 1.5px solid var(--border);
+        border-radius: 10px;
+        font-size: 14px;
+        font-family: 'Inter', sans-serif;
+        color: var(--text);
+        background: #fafafa;
+        transition: var(--transition);
+        outline: none;
+    }
+    .auth-body input:focus,
+    .auth-body textarea:focus,
+    .auth-body select:focus {
+        border-color: var(--accent);
+        background: #fff;
+        box-shadow: 0 0 0 3px rgba(16,185,129,.12);
+    }
+    .auth-body input[type="file"] {
+        padding: 9px 12px;
+        background: #f0fdf4;
+        cursor: pointer;
+        font-size: 13px;
+    }
+    .auth-body textarea { resize: vertical; min-height: 90px; }
+
+    .btn-auth {
+        width: 100%;
+        padding: 14px;
+        background: linear-gradient(135deg, var(--primary-light), var(--primary));
+        color: #fff; border: none;
+        border-radius: 12px;
+        font-size: 16px; font-weight: 700;
+        cursor: pointer;
+        transition: var(--transition);
+        box-shadow: 0 4px 16px rgba(6,78,59,.25);
+        font-family: 'Inter', sans-serif;
+        margin-top: 8px;
+    }
+    .btn-auth:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(6,78,59,.3); }
+
+    .auth-footer {
+        text-align: center;
+        margin-top: 20px;
+        font-size: 14px; color: #6b7280;
+    }
+    .auth-footer a { color: var(--primary-light); font-weight: 700; text-decoration: none; }
+    .auth-footer a:hover { color: var(--accent); }
+
+    @media (max-width: 600px) {
+        .form-grid { grid-template-columns: 1fr; }
+        .auth-body { padding: 24px 20px 28px; }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="auth-page">
+    <div class="auth-card">
+        <div class="auth-card-header">
+            <div class="auth-logo"><i class="fas fa-user-plus"></i></div>
+            <h2>Create Patient Account</h2>
+            <p>Join our AI-powered queue management system</p>
+        </div>
+
+        <div class="auth-body">
+            <form method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
+
+                <!-- Account Info -->
+                <div class="section-divider"><i class="fas fa-user"></i> Account Info</div>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Username</label>
+                        {{ user_form.username }}
+                    </div>
+                    <div class="form-group">
+                        <label>Email</label>
+                        {{ user_form.email }}
+                    </div>
+                    <div class="form-group">
+                        <label>First Name</label>
+                        {{ user_form.first_name }}
+                    </div>
+                    <div class="form-group">
+                        <label>Last Name</label>
+                        {{ user_form.last_name }}
+                    </div>
+                </div>
+
+                <!-- Profile Details -->
+                <div class="section-divider" style="margin-top:8px;"><i class="fas fa-id-card"></i> Profile Details</div>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Phone Number</label>
+                        {{ profile_form.phone }}
+                    </div>
+                    <div class="form-group">
+                        <label>Profile Picture</label>
+                        {{ profile_form.profile_pic }}
+                    </div>
+                </div>
+                <div class="form-group form-grid single">
+                    <label>Address</label>
+                    {{ profile_form.address }}
+                </div>
+
+                <!-- Security -->
+                <div class="section-divider" style="margin-top:8px;"><i class="fas fa-lock"></i> Security</div>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Password</label>
+                        {{ user_form.password }}
+                    </div>
+                    <div class="form-group">
+                        <label>Confirm Password</label>
+                        {{ user_form.confirm_password }}
+                    </div>
+                </div>
+
+                <button type="submit" class="btn-auth">
+                    <i class="fas fa-user-check"></i>&nbsp; Register as Patient
+                </button>
+            </form>
+
+            <div class="auth-footer">
+                Already have an account? <a href="{% url 'login' %}">Sign In</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
