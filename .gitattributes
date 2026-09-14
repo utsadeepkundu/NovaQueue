@@ -1,0 +1,2 @@
+*.py lingust-detectable=true
+*.sql lingust-detectable=true
