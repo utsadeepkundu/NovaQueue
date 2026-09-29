@@ -1,0 +1,94 @@
+{% extends 'patient/base_patient.html' %}
+{% block title %}Book Appointment{% endblock %}
+{% block header_title %}Schedule Visit{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>Book an Appointment</h1>
+    <p>Schedule a consultation with one of our specialists.</p>
+</div>
+
+<div style="max-width:680px;margin:0 auto;">
+    <div class="card">
+        <!-- Card hero header -->
+        <div style="background:linear-gradient(135deg,var(--primary) 0%,var(--primary-mid) 100%);padding:28px 32px;position:relative;overflow:hidden;">
+            <div style="position:absolute;right:-20px;top:-20px;font-size:100px;opacity:.06;color:#fff;"><i class="fas fa-calendar-plus"></i></div>
+            <div style="position:relative;z-index:1;">
+                <div style="display:flex;align-items:center;gap:12px;margin-bottom:6px;">
+                    <div style="width:40px;height:40px;background:rgba(255,255,255,.15);border-radius:12px;display:flex;align-items:center;justify-content:center;">
+                        <i class="fas fa-calendar-plus" style="color:#fff;font-size:18px;"></i>
+                    </div>
+                    <h2 style="font-size:20px;font-weight:900;color:#fff;letter-spacing:-.3px;margin:0;">Book Appointment</h2>
+                </div>
+                <p style="color:rgba(255,255,255,.65);font-size:14px;margin:0;">Fill in the details below to confirm your visit.</p>
+            </div>
+        </div>
+
+        <!-- Form -->
+        <form method="POST" style="padding:32px;display:flex;flex-direction:column;gap:24px;">
+            {% csrf_token %}
+
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">
+                <!-- Date -->
+                <div>
+                    <label class="form-label">Select Date</label>
+                    <select name="date" required class="form-input">
+                        {% for d in dates %}
+                            <option value="{{ d|date:'Y-m-d' }}">{{ d|date:"D, M d, Y" }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <!-- Time -->
+                <div>
+                    <label class="form-label">Select Time Slot</label>
+                    <select name="time" required class="form-input">
+                        {% for t in times %}
+                            <option value="{{ t|time:'H:i' }}">{{ t|time:"h:i A" }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+
+            <!-- Doctor -->
+            <div>
+                <label class="form-label">Select Specialist</label>
+                <select name="doctor" class="form-input">
+                    <option value="Dr. Smith">Dr. Smith — General Physician</option>
+                    <option value="Dr. Sharma">Dr. Sharma — Cardiologist</option>
+                    <option value="Dr. Emily">Dr. Emily — Pediatrician</option>
+                </select>
+            </div>
+
+            <!-- Reason -->
+            <div>
+                <label class="form-label">Reason for Visit</label>
+                <textarea name="reason" rows="4" class="form-input" placeholder="Briefly describe your issue or reason for the visit..."></textarea>
+            </div>
+
+            <!-- Info tip -->
+            <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:12px;padding:14px 18px;display:flex;align-items:flex-start;gap:10px;">
+                <i class="fas fa-info-circle" style="color:var(--primary);margin-top:2px;flex-shrink:0;"></i>
+                <p style="font-size:13px;color:#065f46;margin:0;line-height:1.6;">
+                    You will receive a confirmation once the appointment is scheduled. Arrive 10 minutes early.
+                </p>
+            </div>
+
+            <!-- Actions -->
+            <div style="display:flex;gap:12px;padding-top:8px;border-top:1px solid var(--border);">
+                <a href="{% url 'patient_dashboard' %}" class="btn-outline" style="flex:1;justify-content:center;">
+                    <i class="fas fa-arrow-left"></i> Cancel
+                </a>
+                <button type="submit" class="btn-primary" style="flex:2;justify-content:center;">
+                    <i class="fas fa-calendar-check"></i> Confirm Booking
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<style>
+@media(max-width:600px){
+    div[style*="grid-template-columns:1fr 1fr"]{grid-template-columns:1fr!important;}
+}
+</style>
+{% endblock %}

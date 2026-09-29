@@ -1,0 +1,480 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Patient Portal{% endblock %} | QMS</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'core/css/novaqueue.css' %}">
+    <meta name="theme-color" content="#064e3b">
+    <style>
+        :root {
+            --primary:        #064e3b;
+            --primary-dark:   #043d2f;
+            --primary-light:  #d1fae5;
+            --primary-mid:    #065f46;
+            --accent:         #10b981;
+            --accent-light:   #a7f3d0;
+            --surface:        #ffffff;
+            --surface-2:      #f8fafb;
+            --border:         #e5e7eb;
+            --text-main:      #111827;
+            --text-muted:     #6b7280;
+            --text-xmuted:    #9ca3af;
+            --danger:         #ef4444;
+            --warning:        #f59e0b;
+            --info:           #3b82f6;
+            --sidebar-w:      260px;
+            --header-h:       64px;
+            --radius:         14px;
+            --radius-lg:      20px;
+            --shadow-sm:      0 1px 3px rgba(0,0,0,.06), 0 1px 2px rgba(0,0,0,.04);
+            --shadow-md:      0 4px 16px rgba(6,78,59,.08), 0 1px 4px rgba(0,0,0,.04);
+            --shadow-lg:      0 12px 32px rgba(6,78,59,.12), 0 4px 8px rgba(0,0,0,.06);
+            --transition:     all .2s cubic-bezier(.4,0,.2,1);
+        }
+
+        *, *::before, *::after { box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--surface-2);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+        }
+
+        /* ───── SIDEBAR ───── */
+        #sidebar {
+            width: var(--sidebar-w);
+            background: var(--primary);
+            display: flex;
+            flex-direction: column;
+            position: fixed;
+            top: 0; left: 0; bottom: 0;
+            z-index: 100;
+            transition: var(--transition);
+            box-shadow: 4px 0 24px rgba(6,78,59,.18);
+        }
+
+        #sidebar.collapsed { width: 72px; }
+
+        .sidebar-brand {
+            padding: 22px 20px 18px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border-bottom: 1px solid rgba(255,255,255,.1);
+            min-height: var(--header-h);
+        }
+
+        .brand-icon {
+            width: 36px; height: 36px;
+            background: rgba(255,255,255,.15);
+            border-radius: 10px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 16px; color: #fff;
+            flex-shrink: 0;
+        }
+
+        .brand-text {
+            display: flex; flex-direction: column; overflow: hidden;
+            transition: var(--transition);
+        }
+        .brand-title {
+            font-size: 15px; font-weight: 800; color: #fff;
+            white-space: nowrap; letter-spacing: -.3px;
+        }
+        .brand-sub {
+            font-size: 10px; font-weight: 600; color: rgba(255,255,255,.5);
+            text-transform: uppercase; letter-spacing: 1.5px; white-space: nowrap;
+        }
+
+        #sidebar.collapsed .brand-text,
+        #sidebar.collapsed .nav-label,
+        #sidebar.collapsed .sidebar-footer-text { opacity: 0; width: 0; overflow: hidden; }
+
+        /* nav links */
+        .sidebar-nav { flex: 1; padding: 16px 12px; display: flex; flex-direction: column; gap: 4px; overflow-y: auto; }
+
+        .nav-link {
+            display: flex; align-items: center; gap: 12px;
+            padding: 11px 14px; border-radius: var(--radius);
+            font-size: 14px; font-weight: 600; color: rgba(255,255,255,.65);
+            text-decoration: none; transition: var(--transition);
+            white-space: nowrap; overflow: hidden;
+        }
+        .nav-link:hover { background: rgba(255,255,255,.1); color: #fff; }
+        .nav-link.active { background: rgba(255,255,255,.18); color: #fff; }
+        .nav-link .nav-icon { font-size: 15px; flex-shrink: 0; width: 20px; text-align: center; }
+        .nav-label { transition: var(--transition); }
+
+        /* collapse toggle */
+        #collapseBtn {
+            position: absolute; top: 18px; right: -14px;
+            width: 28px; height: 28px; border-radius: 50%;
+            background: var(--primary-dark); border: 2px solid rgba(255,255,255,.2);
+            color: rgba(255,255,255,.8); font-size: 11px;
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer; transition: var(--transition); z-index: 101;
+        }
+        #collapseBtn:hover { background: var(--accent); color: #fff; border-color: var(--accent); }
+
+        /* sidebar footer */
+        .sidebar-footer { padding: 12px; border-top: 1px solid rgba(255,255,255,.1); }
+        .sidebar-footer form { width: 100%; }
+        .sidebar-footer button {
+            width: 100%; display: flex; align-items: center; gap: 12px;
+            padding: 11px 14px; border-radius: var(--radius);
+            font-size: 14px; font-weight: 600; color: rgba(255,100,100,.85);
+            background: none; border: none; cursor: pointer;
+            transition: var(--transition); white-space: nowrap; overflow: hidden;
+        }
+        .sidebar-footer button:hover { background: rgba(239,68,68,.15); color: #fca5a5; }
+        .sidebar-footer button .nav-icon { flex-shrink: 0; width: 20px; text-align: center; }
+
+        /* ───── MAIN LAYOUT ───── */
+        #main-wrap {
+            margin-left: var(--sidebar-w);
+            flex: 1; display: flex; flex-direction: column;
+            min-height: 100vh; transition: var(--transition);
+        }
+        #main-wrap.expanded { margin-left: 72px; }
+
+        /* ───── TOPBAR ───── */
+        #topbar {
+            height: var(--header-h);
+            background: var(--surface);
+            border-bottom: 1px solid var(--border);
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 0 28px;
+            position: sticky; top: 0; z-index: 50;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .topbar-title {
+            font-size: 17px; font-weight: 800; color: var(--text-main); letter-spacing: -.3px;
+        }
+
+        .topbar-right { display: flex; align-items: center; gap: 16px; }
+
+        .user-badge {
+            display: flex; align-items: center; gap: 10px;
+            padding: 6px 14px 6px 6px;
+            background: var(--surface-2); border-radius: 50px;
+            border: 1px solid var(--border);
+        }
+        .user-avatar {
+            width: 34px; height: 34px; border-radius: 50%;
+            background: var(--primary-light); color: var(--primary);
+            display: flex; align-items: center; justify-content: center;
+            font-weight: 800; font-size: 13px; overflow: hidden; flex-shrink: 0;
+        }
+        .user-avatar img { width: 100%; height: 100%; object-fit: cover; }
+        .user-info { display: flex; flex-direction: column; }
+        .user-name { font-size: 13px; font-weight: 700; color: var(--text-main); line-height: 1.2; }
+        .user-id { font-size: 10px; color: var(--text-xmuted); font-weight: 500; }
+
+        /* ───── MESSAGES ───── */
+        .messages-wrap { padding: 16px 28px 0; }
+        .msg-card {
+            padding: 14px 18px; border-radius: var(--radius);
+            font-size: 14px; font-weight: 500; margin-bottom: 8px;
+            display: flex; align-items: center; gap: 10px;
+        }
+        .msg-success { background: #d1fae5; color: #065f46; border: 1px solid #6ee7b7; }
+        .msg-error   { background: #fee2e2; color: #991b1b; border: 1px solid #fca5a5; }
+
+        /* ───── CONTENT ───── */
+        #main-content { padding: 28px; flex: 1; }
+
+        /* ───── SHARED COMPONENT STYLES ───── */
+
+        /* Page header */
+        .page-header {
+            margin-bottom: 24px;
+        }
+        .page-header h1 {
+            font-size: 22px; font-weight: 900; color: var(--text-main); letter-spacing: -.4px;
+        }
+        .page-header p { font-size: 14px; color: var(--text-muted); margin-top: 2px; }
+
+        /* Cards */
+        .card {
+            background: var(--surface); border-radius: var(--radius-lg);
+            border: 1px solid var(--border); box-shadow: var(--shadow-sm);
+            overflow: hidden; transition: var(--transition);
+        }
+        .card:hover { box-shadow: var(--shadow-md); }
+
+        .card-header {
+            padding: 18px 24px; border-bottom: 1px solid var(--border);
+            display: flex; align-items: center; justify-content: space-between;
+            background: var(--surface);
+        }
+        .card-header-title {
+            font-size: 15px; font-weight: 800; color: var(--text-main);
+        }
+        .card-body { padding: 24px; }
+
+        /* Stat cards */
+        .stat-card {
+            background: var(--surface); border-radius: var(--radius-lg);
+            border: 1px solid var(--border); box-shadow: var(--shadow-sm);
+            padding: 20px 24px; transition: var(--transition);
+        }
+        .stat-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
+        .stat-label { font-size: 10px; font-weight: 800; color: var(--text-xmuted); text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 6px; }
+        .stat-value { font-size: 28px; font-weight: 900; color: var(--text-main); letter-spacing: -1px; line-height: 1; }
+        .stat-sub { font-size: 12px; color: var(--text-muted); margin-top: 4px; font-weight: 500; }
+
+        /* Badges */
+        .badge {
+            display: inline-flex; align-items: center; gap: 5px;
+            padding: 4px 10px; border-radius: 50px;
+            font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: .8px;
+        }
+        .badge-green  { background: #d1fae5; color: #065f46; }
+        .badge-blue   { background: #dbeafe; color: #1d4ed8; }
+        .badge-amber  { background: #fef3c7; color: #92400e; }
+        .badge-red    { background: #fee2e2; color: #991b1b; }
+        .badge-gray   { background: #f3f4f6; color: #4b5563; }
+        .badge-purple { background: #ede9fe; color: #6d28d9; }
+
+        /* Buttons */
+        .btn-primary {
+            display: inline-flex; align-items: center; gap: 8px;
+            background: var(--primary); color: #fff;
+            padding: 11px 22px; border-radius: var(--radius);
+            font-size: 14px; font-weight: 700; border: none; cursor: pointer;
+            transition: var(--transition); text-decoration: none;
+        }
+        .btn-primary:hover { background: var(--primary-mid); transform: translateY(-1px); box-shadow: var(--shadow-md); }
+
+        .btn-outline {
+            display: inline-flex; align-items: center; gap: 8px;
+            background: transparent; color: var(--text-muted);
+            padding: 11px 22px; border-radius: var(--radius);
+            font-size: 14px; font-weight: 600; border: 1.5px solid var(--border); cursor: pointer;
+            transition: var(--transition); text-decoration: none;
+        }
+        .btn-outline:hover { background: var(--surface-2); color: var(--text-main); }
+
+        .btn-danger {
+            display: inline-flex; align-items: center; gap: 8px;
+            background: #fee2e2; color: var(--danger);
+            padding: 11px 22px; border-radius: var(--radius);
+            font-size: 14px; font-weight: 700; border: none; cursor: pointer;
+            transition: var(--transition); text-decoration: none;
+        }
+        .btn-danger:hover { background: var(--danger); color: #fff; }
+
+        /* Form inputs */
+        .form-label {
+            display: block; font-size: 11px; font-weight: 800;
+            color: var(--text-xmuted); text-transform: uppercase; letter-spacing: 1.2px; margin-bottom: 8px;
+        }
+        .form-input {
+            width: 100%; background: var(--surface-2); border: 1.5px solid var(--border);
+            border-radius: var(--radius); padding: 12px 16px;
+            font-size: 14px; font-family: 'Inter', sans-serif; color: var(--text-main);
+            transition: var(--transition); outline: none;
+        }
+        .form-input:focus { border-color: var(--accent); background: #fff; box-shadow: 0 0 0 3px rgba(16,185,129,.12); }
+
+        /* Tables */
+        .data-table { width: 100%; border-collapse: collapse; }
+        .data-table thead th {
+            padding: 12px 20px; font-size: 10px; font-weight: 800;
+            text-transform: uppercase; letter-spacing: 1.2px; color: var(--text-xmuted);
+            background: var(--surface-2); border-bottom: 1px solid var(--border);
+            text-align: left;
+        }
+        .data-table tbody tr { border-bottom: 1px solid #f3f4f6; transition: var(--transition); }
+        .data-table tbody tr:last-child { border-bottom: none; }
+        .data-table tbody tr:hover { background: #f0fdf4; }
+        .data-table tbody td { padding: 16px 20px; font-size: 14px; color: var(--text-main); vertical-align: middle; }
+
+        /* Token pill */
+        .token-pill {
+            display: inline-flex; align-items: center; justify-content: center;
+            background: var(--primary); color: #fff;
+            font-size: 13px; font-weight: 900; letter-spacing: -.3px;
+            padding: 6px 14px; border-radius: 8px; min-width: 80px;
+        }
+
+        /* Empty state */
+        .empty-state {
+            padding: 72px 24px; text-align: center;
+        }
+        .empty-state-icon {
+            width: 80px; height: 80px; border-radius: 50%;
+            background: var(--primary-light); color: var(--primary);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 28px; margin: 0 auto 20px;
+        }
+        .empty-state h3 { font-size: 18px; font-weight: 800; color: var(--text-main); margin-bottom: 8px; }
+        .empty-state p { font-size: 14px; color: var(--text-muted); max-width: 320px; margin: 0 auto 24px; line-height: 1.6; }
+
+        /* Mobile overlay */
+        #mob-overlay {
+            display: none; position: fixed; inset: 0;
+            background: rgba(0,0,0,.4); z-index: 99;
+        }
+
+        /* Mobile sidebar toggle */
+        #mob-toggle {
+            display: none; background: none; border: none;
+            font-size: 20px; color: var(--text-main); cursor: pointer; padding: 4px;
+        }
+
+        @media (max-width: 768px) {
+            #sidebar { transform: translateX(-100%); width: var(--sidebar-w) !important; }
+            #sidebar.mob-open { transform: translateX(0); }
+            #main-wrap { margin-left: 0 !important; }
+            #collapseBtn { display: none; }
+            #mob-toggle { display: block; }
+            #mob-overlay.visible { display: block; }
+            #main-content { padding: 16px; }
+            #topbar { padding: 0 16px; }
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar { width: 5px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 99px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--accent); }
+    </style>
+</head>
+<body>
+
+    <!-- Sidebar -->
+    <aside id="sidebar">
+        <!-- Collapse toggle (desktop) -->
+        <button id="collapseBtn" title="Toggle sidebar">
+            <i class="fas fa-chevron-left" id="collapseIcon"></i>
+        </button>
+
+        <!-- Brand -->
+        <div class="sidebar-brand">
+            <div class="brand-icon"><i class="fas fa-notes-medical"></i></div>
+            <div class="brand-text">
+                <span class="brand-title">QMS</span>
+                <!-- <span class="brand-sub">LazyCoder</span> -->
+            </div>
+        </div>
+
+        <!-- Nav -->
+        <nav class="sidebar-nav">
+            <a href="{% url 'patient_dashboard' %}" class="nav-link {% if request.resolver_match.url_name == 'patient_dashboard' %}active{% endif %}">
+                <i class="fas fa-th-large nav-icon"></i>
+                <span class="nav-label">Dashboard</span>
+            </a>
+            <a href="{% url 'my_tokens' %}" class="nav-link {% if request.resolver_match.url_name == 'my_tokens' %}active{% endif %}">
+                <i class="fas fa-ticket-alt nav-icon"></i>
+                <span class="nav-label">My Tokens</span>
+            </a>
+            <a href="{% url 'my_appointments' %}" class="nav-link {% if request.resolver_match.url_name == 'my_appointments' %}active{% endif %}">
+                <i class="fas fa-calendar-check nav-icon"></i>
+                <span class="nav-label">My Appointments</span>
+            </a>
+            <a href="{% url 'patient_history' %}" class="nav-link {% if request.resolver_match.url_name == 'patient_history' %}active{% endif %}">
+                <i class="fas fa-history nav-icon"></i>
+                <span class="nav-label">History</span>
+            </a>
+            <a href="{% url 'profile_settings' %}" class="nav-link {% if request.resolver_match.url_name == 'profile_settings' %}active{% endif %}">
+                <i class="fas fa-user-cog nav-icon"></i>
+                <span class="nav-label">Profile Settings</span>
+            </a>
+        </nav>
+
+        <!-- Footer / Logout -->
+        <div class="sidebar-footer">
+            <form action="{% url 'logout' %}" method="post">
+                {% csrf_token %}
+                <button type="submit">
+                    <i class="fas fa-sign-out-alt nav-icon"></i>
+                    <span class="nav-label sidebar-footer-text">Logout</span>
+                </button>
+            </form>
+        </div>
+    </aside>
+
+    <!-- Mobile overlay -->
+    <div id="mob-overlay"></div>
+
+    <!-- Main wrapper -->
+    <div id="main-wrap">
+        <!-- Topbar -->
+        <header id="topbar">
+            <div style="display:flex;align-items:center;gap:14px;">
+                <button id="mob-toggle"><i class="fas fa-bars"></i></button>
+                <span class="topbar-title">{% block header_title %}Welcome{% endblock %}</span>
+            </div>
+            <div class="topbar-right">
+                <div class="user-badge">
+                    <div class="user-avatar">
+                        {% if user.profile.profile_pic %}
+                            <img src="{{ user.profile.profile_pic.url }}" alt="Profile">
+                        {% else %}
+                            {{ user.get_full_name|default:user.username|slice:":1"|upper }}
+                        {% endif %}
+                    </div>
+                    <div class="user-info">
+                        <span class="user-name">{{ user.get_full_name|default:user.username }}</span>
+                        <span class="user-id">ID #{{ user.id }}</span>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Flash messages -->
+        {% if messages %}
+        <div class="messages-wrap">
+            {% for message in messages %}
+            <div class="msg-card {% if message.tags == 'success' %}msg-success{% else %}msg-error{% endif %}">
+                <i class="fas {% if message.tags == 'success' %}fa-check-circle{% else %}fa-exclamation-circle{% endif %}"></i>
+                {{ message }}
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <!-- Page content -->
+        <main id="main-content">
+            {% block content %}{% endblock %}
+        </main>
+    </div>
+
+    <script>
+        // ── Desktop collapse ──
+        const sidebar   = document.getElementById('sidebar');
+        const mainWrap  = document.getElementById('main-wrap');
+        const collapseBtn  = document.getElementById('collapseBtn');
+        const collapseIcon = document.getElementById('collapseIcon');
+
+        collapseBtn && collapseBtn.addEventListener('click', () => {
+            sidebar.classList.toggle('collapsed');
+            mainWrap.classList.toggle('expanded');
+            if (sidebar.classList.contains('collapsed')) {
+                collapseIcon.classList.replace('fa-chevron-left','fa-chevron-right');
+            } else {
+                collapseIcon.classList.replace('fa-chevron-right','fa-chevron-left');
+            }
+        });
+
+        // ── Mobile toggle ──
+        const mobToggle  = document.getElementById('mob-toggle');
+        const mobOverlay = document.getElementById('mob-overlay');
+
+        function openMob()  { sidebar.classList.add('mob-open');    mobOverlay.classList.add('visible'); }
+        function closeMob() { sidebar.classList.remove('mob-open'); mobOverlay.classList.remove('visible'); }
+
+        mobToggle  && mobToggle.addEventListener('click', openMob);
+        mobOverlay && mobOverlay.addEventListener('click', closeMob);
+    </script>
+</body>
+</html>

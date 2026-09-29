@@ -1,0 +1,296 @@
+{% extends 'base_public.html' %}
+{% block title %}Home{% endblock %}
+
+{% block extra_head %}
+<style>
+    .hero {
+        background: linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 50%, #d1fae5 100%);
+        padding: 96px 24px 80px;
+        position: relative;
+        overflow: hidden;
+    }
+    .hero::before {
+        content: '';
+        position: absolute;
+        width: 600px; height: 600px;
+        border-radius: 50%;
+        background: radial-gradient(circle, rgba(16,185,129,.10) 0%, transparent 70%);
+        top: -200px; right: -150px;
+        pointer-events: none;
+    }
+    .hero-inner {
+        max-width: 1200px;
+        margin: 0 auto;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 60px;
+        align-items: center;
+    }
+    .hero-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: #d1fae5;
+        color: #065f46;
+        border: 1px solid #6ee7b7;
+        border-radius: 40px;
+        padding: 6px 14px;
+        font-size: 13px;
+        font-weight: 600;
+        margin-bottom: 24px;
+    }
+    .hero-badge i { color: var(--accent); font-size: 11px; }
+    .hero h1 {
+        font-size: clamp(36px, 5vw, 56px);
+        font-weight: 900;
+        line-height: 1.1;
+        color: var(--primary);
+        margin-bottom: 20px;
+        letter-spacing: -1.5px;
+    }
+    .hero h1 em { font-style: normal; color: var(--accent); }
+    .hero p {
+        font-size: 17px;
+        color: #374151;
+        line-height: 1.75;
+        margin-bottom: 36px;
+        max-width: 480px;
+    }
+    .hero-cta { display: flex; gap: 14px; flex-wrap: wrap; }
+    .btn-hero-primary {
+        padding: 14px 32px;
+        background: linear-gradient(135deg, var(--primary-light), var(--primary));
+        color: #fff;
+        border-radius: 12px;
+        font-size: 16px; font-weight: 700;
+        text-decoration: none;
+        transition: var(--transition);
+        box-shadow: 0 4px 20px rgba(6,78,59,.3);
+        display: inline-flex; align-items: center; gap: 8px;
+    }
+    .btn-hero-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(6,78,59,.35); }
+    .btn-hero-outline {
+        padding: 14px 28px;
+        border: 2px solid var(--primary);
+        color: var(--primary);
+        border-radius: 12px;
+        font-size: 16px; font-weight: 700;
+        text-decoration: none;
+        transition: var(--transition);
+        display: inline-flex; align-items: center; gap: 8px;
+    }
+    .btn-hero-outline:hover { background: var(--primary); color: #fff; }
+
+    .hero-visual { display: flex; justify-content: center; }
+    .queue-card {
+        background: #fff;
+        border-radius: 20px;
+        box-shadow: 0 20px 60px rgba(6,78,59,.15);
+        padding: 28px;
+        width: 100%; max-width: 340px;
+        border: 1px solid rgba(16,185,129,.15);
+    }
+    .queue-card-header {
+        display: flex; align-items: center; gap: 10px;
+        margin-bottom: 20px;
+        padding-bottom: 16px;
+        border-bottom: 1px solid #f0fdf4;
+    }
+    .queue-card-icon {
+        width: 40px; height: 40px;
+        background: linear-gradient(135deg, var(--primary), var(--accent));
+        border-radius: 10px;
+        display: flex; align-items: center; justify-content: center;
+        color: #fff; font-size: 16px;
+    }
+    .queue-card-title { font-weight: 700; font-size: 15px; color: var(--primary); }
+    .queue-card-sub   { font-size: 12px; color: var(--text-muted); }
+    .queue-number { text-align: center; padding: 16px 0; }
+    .queue-number .num {
+        font-size: 72px; font-weight: 900;
+        color: var(--primary); line-height: 1; letter-spacing: -3px;
+    }
+    .queue-number .label { font-size: 13px; color: var(--text-muted); margin-top: 4px; }
+    .queue-status-row {
+        display: flex; align-items: center; justify-content: center; gap: 8px;
+        margin-top: 12px; padding: 10px;
+        background: #f0fdf4; border-radius: 10px;
+    }
+    .pulse-dot {
+        width: 8px; height: 8px;
+        background: var(--accent); border-radius: 50%;
+        animation: pulse 1.5s infinite;
+    }
+    @keyframes pulse {
+        0%,100% { opacity:1; transform:scale(1); }
+        50%      { opacity:.5; transform:scale(1.3); }
+    }
+    .queue-status-text { font-size: 13px; font-weight: 600; color: #065f46; }
+    .queue-meta { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 14px; }
+    .queue-meta-item { background: #f8fafb; border-radius: 10px; padding: 10px 12px; text-align: center; }
+    .queue-meta-item .val { font-size: 18px; font-weight: 800; color: var(--primary); }
+    .queue-meta-item .lbl { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+
+    .stats-bar {
+        background: linear-gradient(135deg, var(--primary) 0%, var(--primary-mid) 100%);
+        padding: 48px 24px;
+    }
+    .stats-inner {
+        max-width: 900px; margin: 0 auto;
+        display: grid; grid-template-columns: repeat(3,1fr); gap: 16px;
+    }
+    .stat-item {
+        text-align: center; padding: 20px;
+        border-radius: 16px;
+        background: rgba(255,255,255,.07);
+        border: 1px solid rgba(255,255,255,.1);
+        transition: var(--transition);
+    }
+    .stat-item:hover { background: rgba(255,255,255,.12); transform: translateY(-2px); }
+    .stat-item .val { font-size: 40px; font-weight: 900; color: #fff; letter-spacing: -1px; }
+    .stat-item .lbl { font-size: 14px; color: rgba(255,255,255,.65); margin-top: 6px; font-weight: 500; }
+
+    .features { padding: 80px 24px; max-width: 1200px; margin: 0 auto; }
+    .section-label { font-size: 12px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: var(--accent); margin-bottom: 12px; }
+    .section-title { font-size: clamp(28px,4vw,38px); font-weight: 800; color: var(--primary); letter-spacing: -1px; margin-bottom: 12px; }
+    .section-sub { font-size: 16px; color: var(--text-muted); max-width: 520px; line-height: 1.7; margin-bottom: 48px; }
+    .features-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 24px; }
+    .feature-card {
+        background: #fff;
+        border: 1px solid var(--border);
+        border-radius: 16px; padding: 28px 24px;
+        transition: var(--transition);
+    }
+    .feature-card:hover { box-shadow: 0 8px 32px rgba(6,78,59,.1); border-color: rgba(16,185,129,.3); transform: translateY(-3px); }
+    .feature-icon {
+        width: 48px; height: 48px; border-radius: 12px;
+        background: var(--accent-light);
+        display: flex; align-items: center; justify-content: center;
+        font-size: 20px; color: var(--primary); margin-bottom: 18px;
+    }
+    .feature-card h3 { font-size: 17px; font-weight: 700; color: var(--primary); margin-bottom: 8px; }
+    .feature-card p  { font-size: 14px; color: var(--text-muted); line-height: 1.65; }
+
+    .cta-strip {
+        background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+        padding: 56px 24px;
+        display: flex; align-items: center; justify-content: space-between;
+        gap: 32px; flex-wrap: wrap;
+    }
+    .cta-strip-inner { max-width: 1200px; margin: 0 auto; width: 100%; display: flex; align-items: center; justify-content: space-between; gap: 32px; flex-wrap: wrap; }
+    .cta-strip h2 { font-size: 30px; font-weight: 800; color: #fff; letter-spacing: -0.5px; }
+    .cta-strip p  { font-size: 15px; color: rgba(255,255,255,.7); margin-top: 6px; }
+    .btn-cta-white {
+        padding: 14px 32px; background: #fff; color: var(--primary);
+        border-radius: 12px; font-size: 16px; font-weight: 700;
+        text-decoration: none; transition: var(--transition);
+        white-space: nowrap; box-shadow: 0 4px 16px rgba(0,0,0,.12);
+    }
+    .btn-cta-white:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,.18); }
+
+    @media (max-width: 900px) {
+        .hero-inner { grid-template-columns: 1fr; }
+        .hero-visual { display: none; }
+        .features-grid { grid-template-columns: 1fr; }
+        .stats-inner { grid-template-columns: 1fr; }
+        .cta-strip-inner { justify-content: center; text-align: center; }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<section class="hero">
+    <div class="hero-inner">
+        <div>
+            <div class="hero-badge"><i class="fas fa-circle"></i> AI-Powered Queue Management</div>
+            <h1>No more waiting in <em>long queues.</em></h1>
+            <p>Experience the future of healthcare. Book your token online and get a transparent, AI-assisted estimate of your queue position and waiting time.</p>
+            <div class="hero-cta">
+                <a href="{% url 'signup' %}" class="btn-hero-primary"><i class="fas fa-ticket-alt"></i> Get Your Token</a>
+                <a href="{% url 'about' %}"  class="btn-hero-outline"><i class="fas fa-play-circle"></i> Learn More</a>
+            </div>
+        </div>
+        <div class="hero-visual">
+            <div class="queue-card">
+                <div class="queue-card-header">
+                    <div class="queue-card-icon"><i class="fas fa-hospital-user"></i></div>
+                    <div>
+                        <div class="queue-card-title">Your Queue Token</div>
+                        <div class="queue-card-sub">General Consultation</div>
+                    </div>
+                </div>
+                <div class="queue-number">
+                    <div class="num">42</div>
+                    <div class="label">Your token number</div>
+                </div>
+                <div class="queue-status-row">
+                    <div class="pulse-dot"></div>
+                    <span class="queue-status-text">3 patients ahead &mdash; ~12 min</span>
+                </div>
+                <div class="queue-meta">
+                    <div class="queue-meta-item">
+                        <div class="val">12</div>
+                        <div class="lbl">Min wait</div>
+                    </div>
+                    <div class="queue-meta-item">
+                        <div class="val">High</div>
+                        <div class="lbl">AI Priority</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="stats-bar">
+    <div class="stats-inner">
+        <div class="stat-item">
+            <div class="val"><i class="fas fa-bolt"></i></div>
+            <div class="lbl">Real-time queue updates</div>
+        </div>
+        <div class="stat-item">
+            <div class="val"><i class="fas fa-brain"></i></div>
+            <div class="lbl">AI-assisted prioritisation</div>
+        </div>
+        <div class="stat-item">
+            <div class="val"><i class="fas fa-qrcode"></i></div>
+            <div class="lbl">Fast QR check-in</div>
+        </div>
+    </div>
+</section>
+
+<section class="features">
+    <div class="section-label">Why Choose Us</div>
+    <div class="section-title">Healthcare reimagined</div>
+    <p class="section-sub">From intelligent triage to real-time updates, every part of the experience is designed to save you time and reduce stress.</p>
+    <div class="features-grid">
+        <div class="feature-card">
+            <div class="feature-icon"><i class="fas fa-brain"></i></div>
+            <h3>AI-Powered Triage</h3>
+            <p>Our NLP engine analyzes your symptoms and generates an urgency score in seconds — ensuring the most critical cases are seen first.</p>
+        </div>
+        <div class="feature-card">
+            <div class="feature-icon"><i class="fas fa-clock"></i></div>
+            <h3>Real-Time Wait Times</h3>
+            <p>Live queue tracking with predictive wait estimates. You'll have a clearer view of your position — no more anxious guessing in the waiting room.</p>
+        </div>
+        <div class="feature-card">
+            <div class="feature-icon"><i class="fas fa-calendar-check"></i></div>
+            <h3>Easy Appointments</h3>
+            <p>Book specialist appointments online, view your history, and receive AI-generated health insights — all from your personal portal.</p>
+        </div>
+    </div>
+</section>
+
+<div class="cta-strip">
+    <div class="cta-strip-inner">
+        <div>
+            <h2>Ready to skip the wait?</h2>
+            <p>Join thousands of patients already using NovaQueue.</p>
+        </div>
+        <a href="{% url 'signup' %}" class="btn-cta-white">Create Free Account &rarr;</a>
+    </div>
+</div>
+
+{% endblock %}

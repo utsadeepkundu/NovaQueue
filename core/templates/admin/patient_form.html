@@ -1,0 +1,88 @@
+{% extends 'admin/base_admin.html' %}
+{% block admin_content %}
+<div class="max-w-4xl mx-auto">
+    <!-- Breadcrumbs -->
+    <nav class="flex mb-6 text-sm text-gray-500">
+        <a href="{% url 'admin_dashboard' %}" class="hover:text-blue-600">Dashboard</a>
+        <span class="mx-2">/</span>
+        <a href="{% url 'manage_patients' %}" class="hover:text-blue-600">Patients</a>
+        <span class="mx-2">/</span>
+        <span class="text-gray-800 font-bold">{{ title }}</span>
+    </nav>
+
+    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+        <div class="bg-slate-800 p-6 text-white flex justify-between items-center">
+            <h2 class="text-xl font-bold">{{ title }}</h2>
+            <i class="fas fa-user-plus text-2xl opacity-20"></i>
+        </div>
+
+        <form method="POST" enctype="multipart/form-data" class="p-8 space-y-8">
+            {% csrf_token %}
+
+            <!-- Account Information -->
+            <div>
+                <h3 class="text-lg font-semibold text-gray-800 border-b pb-2 mb-4">Account Information</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {% for field in user_form %}
+                        {% if field.name != 'password' and field.name != 'confirm_password' %}
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">{{ field.label }}</label>
+                            {{ field }}
+                            {% if field.errors %}
+                                <p class="text-red-500 text-xs mt-1">{{ field.errors.0 }}</p>
+                            {% endif %}
+                        </div>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Profile Details -->
+            <div>
+                <h3 class="text-lg font-semibold text-gray-800 border-b pb-2 mb-4">Profile Details</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Phone Number</label>
+                        {{ profile_form.phone }}
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Profile Picture</label>
+                        {{ profile_form.profile_pic }}
+                    </div>
+                    <div class="md:col-span-2">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Address</label>
+                        {{ profile_form.address }}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Security (Only shown if adding new or user intentionally changing) -->
+            {% if user_form.password %}
+            <div>
+                <h3 class="text-lg font-semibold text-gray-800 border-b pb-2 mb-4">Security</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Password</label>
+                        {{ user_form.password }}
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Confirm Password</label>
+                        {{ user_form.confirm_password }}
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Action Buttons -->
+            <div class="flex items-center gap-4 pt-6 border-t">
+                <button type="submit" class="bg-blue-600 text-white px-8 py-3 rounded-xl font-bold hover:bg-blue-700 shadow-lg transition">
+                    Save Patient Record
+                </button>
+                <a href="{% url 'manage_patients' %}" class="text-gray-500 font-medium hover:text-gray-700 transition">
+                    Cancel
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

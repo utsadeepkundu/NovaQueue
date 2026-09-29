@@ -1,0 +1,44 @@
+/* NovaQueue — shared visual polish */
+:root {
+    --nq-ink: #10231d;
+    --nq-muted: #64736d;
+    --nq-line: rgba(16, 35, 29, .09);
+    --nq-green: #0b7a53;
+    --nq-mint: #dff8ec;
+    --nq-glow: rgba(16, 185, 129, .18);
+}
+
+html { scroll-behavior: smooth; }
+body { -webkit-font-smoothing: antialiased; }
+::selection { background: #a7f3d0; color: #064e3b; }
+
+/* Better focus visibility for keyboard users. */
+a:focus-visible, button:focus-visible, input:focus-visible,
+select:focus-visible, textarea:focus-visible {
+    outline: 3px solid rgba(16,185,129,.35) !important;
+    outline-offset: 2px;
+}
+
+/* Shared glass/soft surfaces. */
+.nq-glass {
+    background: rgba(255,255,255,.78);
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+    border: 1px solid rgba(255,255,255,.7);
+    box-shadow: 0 18px 50px rgba(6,78,59,.10);
+}
+
+/* Modern scrollbar. */
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #cbd5d1; border-radius: 999px; }
+::-webkit-scrollbar-thumb:hover { background: #86a99b; }
+
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+        scroll-behavior: auto !important;
+        animation-duration: .01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: .01ms !important;
+    }
+}

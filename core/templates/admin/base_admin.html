@@ -1,0 +1,270 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel | NovaQueue</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'core/css/novaqueue.css' %}">
+    <meta name="theme-color" content="#064e3b">
+    <style>
+        :root {
+            --primary:       #064e3b;
+            --primary-mid:   #065f46;
+            --primary-light: #047857;
+            --accent:        #10b981;
+            --accent-light:  #d1fae5;
+            --sidebar-bg:    #0f1e17;
+            --sidebar-hover: #1a2e22;
+            --sidebar-active:#064e3b;
+            --text:          #111827;
+            --text-muted:    #6b7280;
+            --border:        #e5e7eb;
+            --surface:       #f8fafb;
+            --transition:    all 0.2s cubic-bezier(.4,0,.2,1);
+            --shadow-sm:     0 1px 4px rgba(6,78,59,.07);
+            --shadow-md:     0 4px 20px rgba(6,78,59,.10);
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #f0f4f1;
+            color: var(--text);
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* ── Sidebar ── */
+        .sidebar {
+            width: 240px;
+            background: var(--sidebar-bg);
+            display: flex;
+            flex-direction: column;
+            position: sticky;
+            top: 0;
+            height: 100vh;
+            flex-shrink: 0;
+            z-index: 50;
+        }
+        .sidebar-brand {
+            padding: 22px 20px 18px;
+            border-bottom: 1px solid rgba(255,255,255,.06);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+        }
+        .brand-icon-admin {
+            width: 36px; height: 36px;
+            background: linear-gradient(135deg, var(--primary-light), var(--accent));
+            border-radius: 10px;
+            display: flex; align-items: center; justify-content: center;
+            color: #fff; font-size: 16px; flex-shrink: 0;
+        }
+        .brand-text { font-size: 17px; font-weight: 800; color: #fff; letter-spacing: -0.4px; }
+        .brand-text span { color: var(--accent); }
+
+        .sidebar-section-label {
+            font-size: 9px;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            color: rgba(255,255,255,.25);
+            padding: 20px 20px 8px;
+        }
+        .sidebar-nav { flex: 1; padding: 8px 12px; overflow-y: auto; }
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 12px;
+            border-radius: 10px;
+            font-size: 13.5px;
+            font-weight: 500;
+            color: rgba(255,255,255,.55);
+            text-decoration: none;
+            transition: var(--transition);
+            margin-bottom: 2px;
+        }
+        .nav-item i { width: 16px; text-align: center; font-size: 13px; }
+        .nav-item:hover { background: var(--sidebar-hover); color: rgba(255,255,255,.9); }
+        .nav-item.active {
+            background: var(--sidebar-active);
+            color: #fff;
+            font-weight: 700;
+            box-shadow: 0 2px 12px rgba(16,185,129,.2);
+        }
+        .nav-item.active i { color: var(--accent); }
+        .nav-item .nav-badge {
+            margin-left: auto;
+            background: var(--accent);
+            color: #fff;
+            font-size: 9px;
+            font-weight: 800;
+            padding: 2px 6px;
+            border-radius: 20px;
+            letter-spacing: .5px;
+        }
+
+        .sidebar-footer {
+            padding: 12px;
+            border-top: 1px solid rgba(255,255,255,.06);
+        }
+        .logout-form-btn {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 12px;
+            border-radius: 10px;
+            font-size: 13px;
+            font-weight: 600;
+            color: rgba(255,255,255,.45);
+            background: none;
+            border: none;
+            cursor: pointer;
+            transition: var(--transition);
+            font-family: 'Inter', sans-serif;
+        }
+        .logout-form-btn:hover { background: rgba(239,68,68,.12); color: #f87171; }
+
+        /* ── Main area ── */
+        .main-wrap { flex: 1; display: flex; flex-direction: column; min-width: 0; }
+
+        /* ── Top header ── */
+        .top-header {
+            background: #fff;
+            border-bottom: 1px solid var(--border);
+            height: 64px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 32px;
+            position: sticky;
+            top: 0;
+            z-index: 40;
+            box-shadow: var(--shadow-sm);
+        }
+        .header-title { font-size: 15px; font-weight: 700; color: var(--text); }
+        .header-right { display: flex; align-items: center; gap: 14px; }
+        .access-badge {
+            display: inline-flex; align-items: center; gap: 6px;
+            background: #fef2f2;
+            color: #dc2626;
+            border: 1px solid #fecaca;
+            border-radius: 20px;
+            padding: 4px 12px;
+            font-size: 10px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: .8px;
+        }
+        .access-badge i { font-size: 9px; }
+        .admin-avatar {
+            width: 36px; height: 36px;
+            border-radius: 10px;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            display: flex; align-items: center; justify-content: center;
+            color: #fff; font-size: 14px;
+        }
+
+        /* ── Flash messages ── */
+        .flash-wrap { padding: 20px 32px 0; display: flex; flex-direction: column; gap: 10px; }
+        .flash {
+            display: flex; align-items: center; gap: 10px;
+            padding: 13px 18px; border-radius: 12px;
+            font-size: 13.5px; font-weight: 500;
+        }
+        .flash-success { background: #d1fae5; color: #065f46; border: 1px solid #6ee7b7; }
+        .flash-error   { background: #fee2e2; color: #991b1b; border: 1px solid #fca5a5; }
+
+        /* ── Page content ── */
+        .page-content { padding: 28px 32px 48px; flex: 1; }
+
+        @media (max-width: 768px) {
+            .sidebar { display: none; }
+            .page-content { padding: 20px 16px; }
+            .top-header { padding: 0 16px; }
+        }
+    </style>
+    {% block extra_head %}{% endblock %}
+</head>
+<body>
+
+<!-- Sidebar -->
+<aside class="sidebar">
+    <a href="{% url 'admin_dashboard' %}" class="sidebar-brand">
+        <div class="brand-icon-admin"><i class="fas fa-hospital-user"></i></div>
+        <span class="brand-text">NovaQueue</span>
+    </a>
+
+    <nav class="sidebar-nav">
+        <div class="sidebar-section-label">Main</div>
+
+        <a href="{% url 'admin_dashboard' %}" class="nav-item {% if request.resolver_match.url_name == 'admin_dashboard' %}active{% endif %}">
+            <i class="fas fa-chart-line"></i> Overview
+        </a>
+        <a href="{% url 'qr_scanner' %}" class="nav-item {% if request.resolver_match.url_name == 'qr_scanner' %}active{% endif %}">
+            <i class="fas fa-qrcode"></i> Check-in Scanner
+        </a>
+        <a href="{% url 'manage_queue' %}" class="nav-item {% if 'queue' in request.path %}active{% endif %}">
+            <i class="fas fa-list-ol"></i> Manage Queues
+        </a>
+        <a href="{% url 'admin_appointments' %}" class="nav-item {% if 'appointments' in request.path %}active{% endif %}">
+            <i class="fas fa-calendar-check"></i> Appointments
+        </a>
+        <a href="{% url 'manage_patients' %}" class="nav-item {% if 'patients' in request.path %}active{% endif %}">
+            <i class="fas fa-users"></i> Manage Patients
+        </a>
+
+        <div class="sidebar-section-label">Records & AI</div>
+
+        <a href="{% url 'admin_history' %}" class="nav-item {% if 'history' in request.path %}active{% endif %}">
+            <i class="fas fa-history"></i> Global History
+        </a>
+        <a href="{% url 'admin_analytics' %}" class="nav-item {% if 'analytics' in request.path %}active{% endif %}">
+            <i class="fas fa-brain"></i> AI Analytics <span class="nav-badge">AI</span>
+        </a>
+    </nav>
+
+    <div class="sidebar-footer">
+        <form action="{% url 'logout' %}" method="post">
+            {% csrf_token %}
+            <button type="submit" class="logout-form-btn">
+                <i class="fas fa-sign-out-alt"></i> Logout
+            </button>
+        </form>
+    </div>
+</aside>
+
+<!-- Main -->
+<div class="main-wrap">
+    <header class="top-header">
+        <span class="header-title">Hospital Control Center</span>
+        <div class="header-right">
+            <div class="access-badge"><i class="fas fa-shield-alt"></i> Superuser Access</div>
+            <div class="admin-avatar"><i class="fas fa-user-tie"></i></div>
+        </div>
+    </header>
+
+    {% if messages %}
+    <div class="flash-wrap">
+        {% for message in messages %}
+        <div class="flash {% if message.tags == 'success' %}flash-success{% else %}flash-error{% endif %}">
+            <i class="fas {% if message.tags == 'success' %}fa-check-circle{% else %}fa-exclamation-circle{% endif %}"></i>
+            {{ message }}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <main class="page-content">
+        {% block admin_content %}{% endblock %}
+    </main>
+</div>
+
+</body>
+</html>
