@@ -1,5 +1,4 @@
 Django>=5.2,<7
 Pillow>=11.0
 textblob>=0.18
-scikit-learn>=1.5
 requests>=2.32

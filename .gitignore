@@ -54,3 +54,4 @@ dist/
 *.bak
 .vercel
 .env*
+.vercel/
