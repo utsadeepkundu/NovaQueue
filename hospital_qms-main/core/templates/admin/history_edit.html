@@ -1,0 +1,100 @@
+{% extends 'admin/base_admin.html' %}
+{% block admin_content %}
+
+<div style="max-width:820px;margin:0 auto;">
+
+    <!-- Breadcrumb -->
+    <nav style="display:flex;align-items:center;gap:6px;margin-bottom:24px;font-size:13px;color:#9ca3af;">
+        <a href="{% url 'admin_dashboard' %}" style="color:#047857;font-weight:600;text-decoration:none;transition:color .2s;" onmouseover="this.style.color='#064e3b'" onmouseout="this.style.color='#047857'">Dashboard</a>
+        <i class="fas fa-chevron-right" style="font-size:9px;color:#d1d5db;"></i>
+        <a href="{% url 'admin_history' %}" style="color:#047857;font-weight:600;text-decoration:none;transition:color .2s;" onmouseover="this.style.color='#064e3b'" onmouseout="this.style.color='#047857'">Global History</a>
+        <i class="fas fa-chevron-right" style="font-size:9px;color:#d1d5db;"></i>
+        <span style="color:#111827;font-weight:700;">Edit Record {{ token.token_number }}</span>
+    </nav>
+
+    <!-- Card -->
+    <div style="background:#fff;border-radius:20px;border:1px solid #e5e7eb;box-shadow:0 4px 24px rgba(6,78,59,.08);overflow:hidden;">
+
+        <!-- Card Header -->
+        <div style="background:linear-gradient(135deg,#0f1e17,#064e3b);padding:28px 32px;display:flex;align-items:center;justify-content:space-between;">
+            <div>
+                <div style="font-size:11px;font-weight:700;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;">Editing Clinical Record</div>
+                <h2 style="font-size:22px;font-weight:800;color:#fff;letter-spacing:-0.5px;">Edit Visit Record</h2>
+                <p style="font-size:13px;color:rgba(255,255,255,.5);margin-top:4px;">
+                    Patient: <span style="color:#10b981;font-weight:700;">{{ token.patient.get_full_name }}</span>
+                </p>
+            </div>
+            <div style="text-align:right;">
+                <div style="font-size:10px;font-weight:700;color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;">Token ID</div>
+                <div style="font-size:22px;font-weight:900;color:#10b981;font-family:monospace;letter-spacing:-0.5px;">{{ token.token_number }}</div>
+            </div>
+        </div>
+
+        <!-- Form -->
+        <form method="POST" style="padding:32px;">
+            {% csrf_token %}
+
+            <div style="display:flex;flex-direction:column;gap:24px;">
+
+                <!-- Status -->
+                <div>
+                    <label style="display:block;font-size:11px;font-weight:800;color:#9ca3af;text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;">
+                        <i class="fas fa-tag" style="color:#10b981;margin-right:4px;"></i> Record Status
+                    </label>
+                    <select name="status" style="width:100%;background:#f8fafb;border:1.5px solid #e5e7eb;border-radius:12px;padding:13px 16px;font-size:14px;font-weight:600;color:#111827;font-family:'Inter',sans-serif;outline:none;cursor:pointer;transition:all .2s;"
+                        onfocus="this.style.borderColor='#10b981';this.style.boxShadow='0 0 0 3px rgba(16,185,129,.1)'"
+                        onblur="this.style.borderColor='#e5e7eb';this.style.boxShadow='none'">
+                        <option value="completed" {% if token.status == 'completed' %}selected{% endif %}>Completed</option>
+                        <option value="skipped"   {% if token.status == 'skipped'   %}selected{% endif %}>Skipped</option>
+                        <option value="waiting"   {% if token.status == 'waiting'   %}selected{% endif %}>Waiting (Re-queue)</option>
+                        <option value="in-progress" {% if token.status == 'in-progress' %}selected{% endif %}>In Progress (Active)</option>
+                    </select>
+                </div>
+
+                <!-- Divider -->
+                <div style="border-top:1px solid #f3f4f6;"></div>
+
+                <!-- Symptoms -->
+                <div>
+                    <label style="display:block;font-size:11px;font-weight:800;color:#9ca3af;text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;">
+                        <i class="fas fa-stethoscope" style="color:#10b981;margin-right:4px;"></i> Patient Symptoms (Reported)
+                    </label>
+                    <textarea name="symptoms" rows="3"
+                        style="width:100%;background:#f8fafb;border:1.5px solid #e5e7eb;border-radius:12px;padding:13px 16px;font-size:13.5px;color:#374151;font-family:'Inter',sans-serif;outline:none;resize:vertical;transition:all .2s;line-height:1.6;"
+                        onfocus="this.style.borderColor='#10b981';this.style.boxShadow='0 0 0 3px rgba(16,185,129,.1)'"
+                        onblur="this.style.borderColor='#e5e7eb';this.style.boxShadow='none'">{{ token.symptoms }}</textarea>
+                </div>
+
+                <!-- Doctor Notes -->
+                <div>
+                    <label style="display:block;font-size:11px;font-weight:800;color:#9ca3af;text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;">
+                        <i class="fas fa-notes-medical" style="color:#10b981;margin-right:4px;"></i> Doctor's Clinical Notes / Prescription
+                    </label>
+                    <textarea name="doctor_notes" rows="7"
+                        placeholder="No notes recorded yet..."
+                        style="width:100%;background:#f8fafb;border:1.5px solid #e5e7eb;border-radius:12px;padding:13px 16px;font-size:13.5px;color:#111827;font-family:'Inter',sans-serif;outline:none;resize:vertical;transition:all .2s;line-height:1.65;font-weight:500;"
+                        onfocus="this.style.borderColor='#10b981';this.style.boxShadow='0 0 0 3px rgba(16,185,129,.1)'"
+                        onblur="this.style.borderColor='#e5e7eb';this.style.boxShadow='none'">{{ token.doctor_notes|default:"" }}</textarea>
+                </div>
+
+                <!-- Actions -->
+                <div style="display:flex;align-items:center;gap:12px;padding-top:8px;border-top:1px solid #f3f4f6;">
+                    <button type="submit"
+                        style="flex:1;padding:14px;background:linear-gradient(135deg,#047857,#064e3b);color:#fff;border:none;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;box-shadow:0 4px 16px rgba(6,78,59,.25);transition:all .2s;display:flex;align-items:center;justify-content:center;gap:8px;"
+                        onmouseover="this.style.transform='translateY(-1px)';this.style.boxShadow='0 8px 24px rgba(6,78,59,.3)'"
+                        onmouseout="this.style.transform='translateY(0)';this.style.boxShadow='0 4px 16px rgba(6,78,59,.25)'">
+                        <i class="fas fa-save"></i> Save Changes
+                    </button>
+                    <a href="{% url 'admin_history' %}"
+                        style="padding:14px 24px;background:#f3f4f6;color:#6b7280;border-radius:12px;font-size:14px;font-weight:700;text-decoration:none;transition:all .2s;white-space:nowrap;"
+                        onmouseover="this.style.background='#e5e7eb';this.style.color='#374151'"
+                        onmouseout="this.style.background='#f3f4f6';this.style.color='#6b7280'">
+                        Cancel
+                    </a>
+                </div>
+
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

@@ -1,4 +1,5 @@
 # NovaQueue
+<<<<<<< HEAD
 
 > Smart Hospital Queue & Patient Management System
 
@@ -315,3 +316,6 @@ git commit -m "Improve project documentation and gitignore"
 git push origin main
 
 Then your GitHub repo will have a much cleaner first impression.
+=======
+Smart Queue Management System
+>>>>>>> 9b00cfedfebf7c4109eeffbaeb3b3fa30d7b5de0

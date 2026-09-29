@@ -1,0 +1,112 @@
+{% extends 'admin/base_admin.html' %}
+{% block admin_content %}
+
+<!-- Page Header -->
+<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:28px;flex-wrap:wrap;gap:16px;">
+    <div>
+        <h2 style="font-size:22px;font-weight:800;color:#064e3b;letter-spacing:-0.5px;">Appointment Manager</h2>
+        <p style="font-size:13px;color:#6b7280;margin-top:3px;">View and manage all scheduled patient appointments.</p>
+    </div>
+    <!-- Date Filter -->
+    <form method="GET" style="display:flex;align-items:center;gap:8px;">
+        <div style="position:relative;">
+            <i class="fas fa-calendar-alt" style="position:absolute;left:12px;top:50%;transform:translateY(-50%);color:#9ca3af;font-size:13px;pointer-events:none;"></i>
+            <input type="date" name="date" value="{{ filter_date }}"
+                style="padding:10px 14px 10px 36px;border:1.5px solid #e5e7eb;border-radius:10px;font-size:13px;font-family:'Inter',sans-serif;color:#374151;background:#fff;outline:none;transition:all .2s;"
+                onfocus="this.style.borderColor='#10b981';this.style.boxShadow='0 0 0 3px rgba(16,185,129,.1)'"
+                onblur="this.style.borderColor='#e5e7eb';this.style.boxShadow='none'">
+        </div>
+        <button type="submit"
+            style="padding:10px 20px;background:#064e3b;color:#fff;border:none;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;transition:all .2s;"
+            onmouseover="this.style.background='#047857'" onmouseout="this.style.background='#064e3b'">
+            <i class="fas fa-filter" style="margin-right:5px;"></i> Filter
+        </button>
+    </form>
+</div>
+
+<!-- Appointments List -->
+<div style="display:flex;flex-direction:column;gap:16px;">
+    {% for appt in appointments %}
+    <div style="background:#fff;border-radius:18px;border:1px solid #e5e7eb;box-shadow:0 2px 12px rgba(6,78,59,.06);overflow:hidden;transition:box-shadow .2s;"
+         onmouseover="this.style.boxShadow='0 6px 28px rgba(6,78,59,.1)'" onmouseout="this.style.boxShadow='0 2px 12px rgba(6,78,59,.06)'">
+        <div style="display:flex;align-items:stretch;flex-wrap:wrap;">
+
+            <!-- Time Column -->
+            <div style="width:140px;flex-shrink:0;background:linear-gradient(135deg,#f0fdf4,#d1fae5);border-right:1px solid #e5e7eb;padding:24px 20px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:8px;">
+                <div style="font-size:26px;font-weight:900;color:#064e3b;letter-spacing:-1px;line-height:1;">
+                    {{ appt.appointment_time|time:"h:i" }}
+                </div>
+                <div style="font-size:10px;font-weight:700;color:#10b981;text-transform:uppercase;letter-spacing:.8px;">
+                    {{ appt.appointment_time|time:"A" }}
+                </div>
+                <div style="font-size:10px;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:.5px;margin-top:2px;">
+                    {{ appt.doctor_name }}
+                </div>
+                <div style="margin-top:4px;">
+                    {% if appt.status == 'scheduled' %}
+                        <span style="display:inline-block;background:#dbeafe;color:#1d4ed8;font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;padding:4px 10px;border-radius:20px;border:1px solid #bfdbfe;">Upcoming</span>
+                    {% elif appt.status == 'completed' %}
+                        <span style="display:inline-block;background:#d1fae5;color:#065f46;font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;padding:4px 10px;border-radius:20px;border:1px solid #6ee7b7;">Done</span>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Main Content -->
+            <div style="flex:1;padding:24px 28px;min-width:0;">
+                <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:12px;">
+                    <div>
+                        <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px;">
+                            <div style="width:36px;height:36px;border-radius:10px;background:#d1fae5;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:#065f46;flex-shrink:0;">
+                                {{ appt.patient.first_name|first|upper }}
+                            </div>
+                            <div>
+                                <h3 style="font-size:16px;font-weight:800;color:#064e3b;letter-spacing:-0.3px;">{{ appt.patient.get_full_name }}</h3>
+                                <div style="font-size:12px;color:#9ca3af;margin-top:1px;">{{ appt.patient.email }}</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="background:#f8fafb;border-radius:10px;padding:10px 14px;margin-bottom:16px;display:inline-flex;align-items:center;gap:8px;">
+                    <i class="fas fa-clipboard-list" style="color:#10b981;font-size:12px;"></i>
+                    <span style="font-size:13px;color:#374151;font-weight:500;">{{ appt.reason }}</span>
+                </div>
+
+                {% if appt.status == 'scheduled' %}
+                <form action="{% url 'complete_appointment' appt.pk %}" method="POST">
+                    {% csrf_token %}
+                    <div style="margin-bottom:10px;">
+                        <label style="display:block;font-size:10px;font-weight:800;color:#9ca3af;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;">
+                            <i class="fas fa-notes-medical" style="color:#10b981;margin-right:3px;"></i> Prescription Notes
+                        </label>
+                        <textarea name="doctor_notes" rows="2" placeholder="Enter notes to complete..."
+                            style="width:100%;border:1.5px solid #e5e7eb;border-radius:10px;padding:10px 14px;font-size:13px;font-family:'Inter',sans-serif;color:#374151;background:#fff;outline:none;resize:vertical;transition:all .2s;"
+                            onfocus="this.style.borderColor='#10b981';this.style.boxShadow='0 0 0 3px rgba(16,185,129,.1)'"
+                            onblur="this.style.borderColor='#e5e7eb';this.style.boxShadow='none'"></textarea>
+                    </div>
+                    <button type="submit"
+                        style="display:inline-flex;align-items:center;gap:7px;padding:10px 20px;background:linear-gradient(135deg,#047857,#064e3b);color:#fff;border:none;border-radius:10px;font-size:12px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;box-shadow:0 2px 10px rgba(6,78,59,.2);transition:all .2s;"
+                        onmouseover="this.style.transform='translateY(-1px)';this.style.boxShadow='0 4px 16px rgba(6,78,59,.3)'"
+                        onmouseout="this.style.transform='translateY(0)';this.style.boxShadow='0 2px 10px rgba(6,78,59,.2)'">
+                        <i class="fas fa-check-circle"></i> Complete & Generate AI Plan
+                    </button>
+                </form>
+                {% else %}
+                <div style="background:#f0fdf4;border:1px solid #6ee7b7;border-radius:10px;padding:14px 16px;display:flex;align-items:flex-start;gap:10px;">
+                    <i class="fas fa-file-medical" style="color:#10b981;margin-top:2px;font-size:13px;"></i>
+                    <p style="font-size:13px;color:#065f46;font-style:italic;line-height:1.6;">"{{ appt.doctor_notes }}"</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    {% empty %}
+    <div style="background:#fff;border-radius:18px;border:1px solid #e5e7eb;padding:72px 24px;text-align:center;">
+        <div style="color:#d1d5db;font-size:40px;margin-bottom:14px;"><i class="fas fa-calendar-day"></i></div>
+        <p style="font-size:14px;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:1px;">No appointments for this date</p>
+        <p style="font-size:13px;color:#d1d5db;margin-top:6px;">Try selecting a different date using the filter above.</p>
+    </div>
+    {% endfor %}
+</div>
+
+{% endblock %}

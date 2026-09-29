@@ -1,0 +1,168 @@
+{% extends 'admin/base_admin.html' %}
+{% block admin_content %}
+<div class="max-w-2xl mx-auto">
+    <div class="bg-white rounded-3xl shadow-xl overflow-hidden border border-gray-100">
+        <div class="bg-slate-800 p-8 text-white text-center">
+            <h2 class="text-2xl font-bold">Patient Check-in Scanner</h2>
+            <p class="text-slate-400 text-sm mt-1">Scan camera or upload QR image to mark arrival</p>
+        </div>
+        
+        <div class="p-8">
+            <!-- Toggle Options -->
+            <div class="flex border-b mb-6">
+                <button id="camera-tab" onclick="switchMode('camera')" class="flex-1 py-3 text-sm font-bold border-b-2 border-blue-600 text-blue-600 transition">
+                    <i class="fas fa-camera mr-2"></i> Use Camera
+                </button>
+                <button id="upload-tab" onclick="switchMode('upload')" class="flex-1 py-3 text-sm font-bold border-b-2 border-transparent text-gray-400 hover:text-gray-600 transition">
+                    <i class="fas fa-file-upload mr-2"></i> Upload Image
+                </button>
+            </div>
+
+            <!-- Camera View -->
+            <div id="camera-section" class="block">
+                <div id="reader" class="rounded-2xl overflow-hidden border-4 border-gray-100 bg-gray-50"></div>
+            </div>
+
+            <!-- Upload View -->
+            <div id="upload-section" class="hidden">
+                <div class="border-4 border-dashed border-gray-100 bg-gray-50 rounded-2xl p-12 text-center">
+                    <input type="file" id="qr-input" accept="image/*" class="hidden" onchange="handleFileUpload(event)">
+                    <label for="qr-input" class="cursor-pointer group">
+                        <div class="w-16 h-16 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:bg-blue-600 group-hover:text-white transition">
+                            <i class="fas fa-cloud-upload-alt text-2xl"></i>
+                        </div>
+                        <p class="font-bold text-gray-700">Click to upload QR image</p>
+                        <p class="text-xs text-gray-400 mt-1">Supports PNG, JPG, JPEG</p>
+                    </label>
+                </div>
+            </div>
+            
+            <div id="result-box" class="mt-8 hidden p-6 rounded-2xl text-center shadow-inner">
+                <p id="result-text" class="font-bold text-lg"></p>
+                <div id="loading-spinner" class="hidden mt-2">
+                    <i class="fas fa-spinner fa-spin text-blue-500 text-2xl"></i>
+                    <p class="text-xs text-gray-400 mt-2">Processing image...</p>
+                </div>
+                <button id="scan-again-btn" onclick="restartScanner()" class="mt-4 text-blue-600 font-bold text-sm hover:underline">Scan Next</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://unpkg.com/html5-qrcode"></script>
+<script>
+    const html5QrCode = new Html5Qrcode("reader");
+    const qrConfig = { fps: 10, qrbox: { width: 250, height: 250 } };
+    let currentMode = 'camera';
+
+    function switchMode(mode) {
+        currentMode = mode;
+        const cameraBtn = document.getElementById('camera-tab');
+        const uploadBtn = document.getElementById('upload-tab');
+        const cameraSec = document.getElementById('camera-section');
+        const uploadSec = document.getElementById('upload-section');
+
+        // Reset result box when switching modes
+        document.getElementById('result-box').classList.add('hidden');
+
+        if (mode === 'camera') {
+            cameraBtn.classList.add('border-blue-600', 'text-blue-600');
+            cameraBtn.classList.remove('border-transparent', 'text-gray-400');
+            uploadBtn.classList.add('border-transparent', 'text-gray-400');
+            uploadBtn.classList.remove('border-blue-600', 'text-blue-600');
+            cameraSec.classList.replace('hidden', 'block');
+            uploadSec.classList.replace('block', 'hidden');
+            restartScanner();
+        } else {
+            uploadBtn.classList.add('border-blue-600', 'text-blue-600');
+            uploadBtn.classList.remove('border-transparent', 'text-gray-400');
+            cameraBtn.classList.add('border-transparent', 'text-gray-400');
+            cameraBtn.classList.remove('border-blue-600', 'text-blue-600');
+            cameraSec.classList.replace('block', 'hidden');
+            uploadSec.classList.replace('hidden', 'block');
+            
+            // Stop camera if it's running
+            if (html5QrCode.isScanning) {
+                html5QrCode.stop().catch(err => console.log("Stop error ignored"));
+            }
+        }
+    }
+
+    function onScanSuccess(decodedText, decodedResult) {
+        html5QrCode.stop().then(() => {
+            checkInPatient(decodedText);
+        });
+    }
+
+    function handleFileUpload(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        // Reset and show loading
+        document.getElementById('result-box').classList.remove('hidden');
+        document.getElementById('result-text').innerText = "";
+        showLoading(true);
+
+        html5QrCode.scanFile(file, true)
+            .then(decodedText => {
+                showLoading(false);
+                checkInPatient(decodedText);
+            })
+            .catch(err => {
+                showLoading(false);
+                console.error("QR Scan Error:", err);
+                showResult("Could not find a valid QR code. Please ensure the image is clear and not cropped.", "error");
+            });
+    }
+
+    function showLoading(show) {
+        const spinner = document.getElementById('loading-spinner');
+        spinner.classList.toggle('hidden', !show);
+    }
+
+    function checkInPatient(tokenNumber) {
+        fetch("{% url 'process_check_in' %}", {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ token_number: tokenNumber })
+        })
+        .then(response => response.json())
+        .then(data => {
+            showResult(data.message, data.status);
+        })
+        .catch(err => {
+            showResult("System error connection to server. Please try again.", "error");
+        });
+    }
+
+    function showResult(message, status) {
+        const box = document.getElementById('result-box');
+        const text = document.getElementById('result-text');
+        box.classList.remove('hidden', 'bg-green-50', 'bg-red-50', 'bg-blue-50', 'text-green-700', 'text-red-700', 'text-blue-700', 'border-green-200', 'border-red-200', 'border-blue-200');
+        
+        if(status === 'success') {
+            box.classList.add('bg-green-50', 'text-green-700', 'border', 'border-green-200');
+            text.innerText = "✓ " + message;
+        } else if (status === 'info') {
+            box.classList.add('bg-blue-50', 'text-blue-700', 'border', 'border-blue-200');
+            text.innerText = "ℹ " + message;
+        } else {
+            box.classList.add('bg-red-50', 'text-red-700', 'border', 'border-red-200');
+            text.innerText = "✕ " + message;
+        }
+        box.classList.remove('hidden');
+    }
+
+    function restartScanner() {
+        document.getElementById('result-box').classList.add('hidden');
+        if (currentMode === 'camera') {
+            html5QrCode.start({ facingMode: "environment" }, qrConfig, onScanSuccess)
+                .catch(err => console.error("Camera error", err));
+        }
+    }
+
+    window.onload = () => {
+        if (currentMode === 'camera') restartScanner();
+    };
+</script>
+{% endblock %}
