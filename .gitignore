@@ -52,3 +52,5 @@ dist/
 *.tmp
 *.temp
 *.bak
+.vercel
+.env*
